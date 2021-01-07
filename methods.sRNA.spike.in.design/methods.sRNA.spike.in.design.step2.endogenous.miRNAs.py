@@ -5,6 +5,9 @@
 
 import sys, os
 
+if len(sys.argv) < 2:
+	sys.exit("Provide fasta file containing endogenous miRNAs")
+
 # Get first argument
 inFile = sys.argv[1] 
 
@@ -31,6 +34,6 @@ for line in inLines:
         mfeList.append(mfe)
 
 for mfe in mfeList:
-    print >>ofh,mfe
+    ofh.write(str(mfe) + "\n")
 
 ofh.close()    
