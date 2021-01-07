@@ -5,31 +5,17 @@
 
 import sys, os
 
-inFile = 'mature.miRNA.seqs.top50percent.fa'
-##ifh = open(inFile)
-##inLines = ifh.readlines()
-##ifh.close()
-##
-##faDict = {}
-##
-##for i in range(0,len(inLines),2):
-##    name = inLines[i].strip()
-##    name = name.lstrip('>')
-##    seq = inLines[i+1].strip()
-##    faDict[name] = (seq)
+inFile = sys.argv[1] 
 
-
-cmd = 'cat ' + inFile + '| RNAfold -T 4 --noPS > ' + 'mature.miRNA.seqs.top50percent_folded'
+cmd = 'cat ' + inFile + '| RNAfold -T 4 --noPS > ' + 'mature.miRNA.seqs_folded'
 
 os.system(cmd)
 
-
-#retrieve mfes
-
-outFile = 'mature.miRNA.seqs.top50percent_mfes'
+# Retrieve mfes by parsing the output of RNAfold in mature.miRNA.seqs_folded
+outFile = 'mature.miRNA.seqs_mfes'
 ofh = open(outFile,'w')
 
-inFile = 'mature.miRNA.seqs.top50percent_folded'
+inFile = 'mature.miRNA.seqs_folded'
 ifh = open(inFile)
 inLines = ifh.readlines()
 ifh.close()
