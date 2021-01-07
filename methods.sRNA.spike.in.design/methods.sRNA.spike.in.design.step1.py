@@ -1,6 +1,6 @@
 #methods.sRNA.spike.in.design.step1.py
 
-# Input = fasta file containing miRNAs
+# Input = fasta file containing miRNAs (it can contain either T or U, it works for both)
 # Output = random.fa 
 
 import random, sys
@@ -50,7 +50,7 @@ for seq in list_seq:
 # Create a new dictionary that will contain the chain of each nucleotides based on their frequency
 freqDict2 = {}
 
-# Then add a number of CGTA equivalent to the frequencies values given in freqDict
+# Then add a number of CGUA equivalent to the frequencies values given in freqDict
 # This will create a dictionary of 21 elements, each element containing x times each nucleotide 
 for pos in freqDict.keys():
     baseList = []
