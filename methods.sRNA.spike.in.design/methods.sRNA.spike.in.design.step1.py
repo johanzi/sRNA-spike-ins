@@ -1,7 +1,7 @@
 #methods.sRNA.spike.in.design.step1.py
 
 # Input = fasta file containing miRNAs (it can contain either T or U, it works for both)
-# Output = random.fa 
+# Output = random.fa (the Us are turned in Ts to allow proper mapping in bowtie)
 
 import random, sys
 
@@ -66,7 +66,7 @@ for pos in freqDict.keys():
     for i in range(0,C_count):
         baseList.append('C')
     for i in range(0,U_count):
-        baseList.append('U')
+        baseList.append('T')
     
     freqDict2[pos] = (baseList)
 
