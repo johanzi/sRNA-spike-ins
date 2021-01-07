@@ -5,8 +5,16 @@
 
 import random, sys
 
+# Check arguments
+
+if len(sys.argv) <3:
+    sys.exit("Arguments missing. Provide input fasta file and number of semi-random sequences needed")
+
+
 # Provide as argument the fasta file containing the miRNAs
 ref_fasta = sys.argv[1]
+
+nb_sequences = int(sys.argv[2])
 
 fasta =  open(ref_fasta,"r")
 fasta = fasta.read()
@@ -78,10 +86,10 @@ ofh = open(outFile,'w')
 # in each element, and do that for the 21 elements so that a sequence of 21 nucleotides
 # is built. The process is reiterated 1000 times and formated in fasta format
 # Only the nucleotide from 5 to 17 are displayed 
-for i in range(0,1000):
+for i in range(0,nb_sequences):
     randomSeq = ''
     for pos in freqDict2.keys():
         randomSeq = randomSeq + random.choice(freqDict2[pos])
-    print >>ofh,'>' + str(i)
-    print >>ofh,randomSeq[4:17]
+    ofh.write('>' + str(i) + "\n")
+    ofh.write(randomSeq[4:17]+"\n")
 
