@@ -6,20 +6,28 @@
 import random, sys
 
 # Check arguments
-
 if len(sys.argv) <3:
     sys.exit("Arguments missing. Provide input fasta file and number of semi-random sequences needed")
-
 
 # Provide as argument the fasta file containing the miRNAs
 ref_fasta = sys.argv[1]
 
+# Check if number of oligos needed is given and is an integer
+try:
+    sys.argv[2]= int(sys.argv[2])
+except IndexError:
+    sys.exit("Error: number of sequence needed is missing")
+except ValueError:
+    sys.exit("Error: s: number of sequence needed is not an integer")
+
 nb_sequences = int(sys.argv[2])
 
+# Open fasta file
 fasta =  open(ref_fasta,"r")
 fasta = fasta.read()
 fasta = fasta.split("\n")
 
+# Generate a list of sequences with each element of the fasta file
 list_seq = []
 
 for seq in fasta:
@@ -30,11 +38,9 @@ for seq in fasta:
 #Remove empty line if there is
 list_seq = [_f for _f in list_seq if _f]
 
-# Create an empty dictionary
-freqDict = {}
-
 # Create a dictionary of 21 elements (0 to 20), each element has a key (position) and a value tuple of 4 values (frequency of each
 # nucleotides
+freqDict = {}
 for i in range(0,21):
     freqDict[i] = (0,0,0,0)
 
@@ -53,7 +59,6 @@ for seq in list_seq:
                 freqDict[i] = (freqDict[i][0],freqDict[i][1],freqDict[i][2] + 1,freqDict[i][3])
             if seq[i] == 'T' or seq[i] == 'U':
                 freqDict[i] = (freqDict[i][0],freqDict[i][1],freqDict[i][2],freqDict[i][3] + 1)
-
 
 # Create a new dictionary that will contain the chain of each nucleotides based on their frequency
 freqDict2 = {}
@@ -93,3 +98,4 @@ for i in range(0,nb_sequences):
     ofh.write('>' + str(i) + "\n")
     ofh.write(randomSeq[4:17]+"\n")
 
+print("random.fa was generated successfully")
