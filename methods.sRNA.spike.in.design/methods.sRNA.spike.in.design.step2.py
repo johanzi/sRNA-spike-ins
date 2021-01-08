@@ -10,6 +10,8 @@
             #(in mfes directory) and 3) summary statistics for MFEs (minimum, maximum, mean and median) for each series of random
             #13mers that do not match the genome, and which have 256 possible random 4 bases added to both sides
 
+# Usage: python3 methods.sRNA.spike.in.design.step2.py noMatch.fa
+
 import random, sys, numpy, os, pathlib
 
 #functions
@@ -28,9 +30,10 @@ def generateRandomers(inList):
             outList.append(seq)
     return outList
 
+if len(sys.argv) < 2:
+    sys.exit("Provide fasta file containing unmapped oligos")
 
-
-inFile = 'noMatch.fa'
+inFile = sys.argv[1]
 ifh = open(inFile)
 inLines = ifh.readlines()
 ifh.close()
