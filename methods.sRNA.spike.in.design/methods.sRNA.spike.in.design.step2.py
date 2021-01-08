@@ -10,7 +10,7 @@
             #(in mfes directory) and 3) summary statistics for MFEs (minimum, maximum, mean and median) for each series of random
             #13mers that do not match the genome, and which have 256 possible random 4 bases added to both sides
 
-import random, sys, numpy, os
+import random, sys, numpy, os, pathlib
 
 #functions
 
@@ -29,19 +29,29 @@ def generateRandomers(inList):
     return outList
 
 
+
 inFile = 'noMatch.fa'
 ifh = open(inFile)
 inLines = ifh.readlines()
 ifh.close()
 
-faDict = {}
 
+
+# Generate output folders if not existing (should be run in Python3)
+pathlib.Path("randomOligoSets").mkdir(parents=True, exist_ok=True)
+pathlib.Path("randomOligoSets/folded").mkdir(parents=True, exist_ok=True)
+pathlib.Path("randomOligoSets/folded/mfes").mkdir(parents=True, exist_ok=True)
+
+
+# Generate a dictionary containing all unmapped 13-mers contained in noMatch.fa
+faDict = {}
 for i in range(0,len(inLines),2):
     name = inLines[i].strip()
     name = name.lstrip('>')
     seq = inLines[i+1].strip()
     faDict[name] = (seq)
 
+# Generate the prefix and suffix of 4 randomly chosen nucleotides
 for name in faDict.keys():
     inList = generateBaseList()
     random2mers = generateRandomers(inList)
@@ -72,8 +82,8 @@ for name in faDict.keys():
     ofh = open(outFile,'w')
 
     for key in randomDict.keys():
-        print >>ofh,'>' + key
-        print >>ofh,randomDict[key]
+        print('>' + key, file=ofh)
+        print(randomDict[key], file=ofh)
 
     ofh.close()
 
@@ -104,7 +114,8 @@ outFile1 = outDir + 'summaryStats.xls'
 
 ofh1 = open(outFile1,'w')
 
-print >>ofh1,'oligo','\t','minimum','\t','maximum','\t','mean','\t','median'
+# Print the header of the file summaryStats.xls
+print('oligo','\t','minimum','\t','maximum','\t','mean','\t','median', file=ofh1)
 
 for oligo in faDict.keys():
 
@@ -128,14 +139,14 @@ for oligo in faDict.keys():
                     mfeList.append(mfe)
 
             for mfe in mfeList:
-                print >>ofh2,mfe
+                print(mfe, file=ofh2)
             
             minimum = round(numpy.min(mfeList),2)
             maximum = round(numpy.max(mfeList),2)
             mean = round(numpy.mean(mfeList),2)
             median = round(numpy.median(mfeList),2)
 
-            print >>ofh1,oligo,'\t',minimum,'\t',maximum,'\t',mean,'\t',median
+            print(oligo,'\t',minimum,'\t',maximum,'\t',mean,'\t',median, file=ofh1)
 
 ofh1.close()
 ofh2.close()
