@@ -1,14 +1,96 @@
+
 # Small RNA spike-in oligonucleotide design and analysis
-This repository contains scripts used to design and analyze a novel set of small RNA spike-in oligonucleotides (sRNA spike-ins). sRNA spike-ins can be used to normalize high-throughput small RNA sequencing (sRNA-Seq) data across individual experiments, as well as the genome-wide estimation of sRNA:mRNA stoichiometries when used together with mRNA spike-ins. The scripts and files contained within this repository were used to generate all of the data presented in an unpublished manuscript by Lutzmayer, Enugutti and Nodine. The raw data files can be downloaded from the NCBI Gene Expression Omnibus (GEO Series GSE98553), and used to generate all data files and graphs according to the procedures outlined below.
 
-Scripts and example graphs are organized into nine main directories in which each set of programs should be run:
+This repository contains scripts used to design and analyze a novel set of small RNA spike-in oligonucleotides (sRNA spike-ins). sRNA spike-ins can be used to normalize high-throughput small RNA sequencing (sRNA-Seq) data across individual experiments, as well as the genome-wide estimation of sRNA:mRNA stoichiometries when used together with mRNA spike-ins. The scripts and files contained within this repository were used to generate all of the data presented in [Lutzmayer et al. 2017](https://www.nature.com/articles/s41598-017-06174-3).
 
+The repository has been modified to be used with other species. The scripts have been made compatible with Python3 and arguments now need to be passed to avoid the lack of flexibility of the hard-coded variables used by the original authors.
+
+I give here an example for maize.
+
+
+# Softwares needed
+
+
+## Python3
+
+Should be installed by default on Unix machines. I recommend using conda to install specific libraries such as numpy.
+
+Install Numpy for Python3
+
+```{bash}
+# Log to py3.7 environment (previously created using `conda create --name py3.7 python=3.7)
+source activate py3.7
+
+# Install numpy
+conda install -c conda-forge numpy
+
+```
+
+## Bowtie
+
+Need to retrieve semi-random sRNA sequences not matching the target genome
+
+Check manual here http://bowtie-bio.sourceforge.net/tutorial.shtml#algn
+
+
+```{bash}
+# We have it already installed on our HPC and can use module
+module load BOWTIE1/1.2.2
+
+```
+
+## RNAfold
+
+This software is needed to 
+
+Download code source from https://www.tbi.univie.ac.at/RNA/#download
+
+Check documentation for installation https://www.tbi.univie.ac.at/RNA/documentation.html#install
+
+```{bash}
+
+tar -zxvf ViennaRNA-2.4.17.tar.gz
+cd ViennaRNA-2.4.17
+./configure --prefix=/usr/users/zicola/bin/ViennaRNA-2.4.17
+make
+make install
+
+# Add the path of the binaries to your PATH /usr/users/zicola/bin/ViennaRNA-2.4.17/bin to PATH
+export PATH="$PATH:/usr/users/zicola/bin/ViennaRNA-2.4.17"
+
+```
+
+
+## Obtain miRNAs as templates
+
+The design of oligonucleotides is semi-random as it uses the frequency of nucleotides for each position based on real small RNAs. In that case, 21-nt miRNAs are used but it could as well be any other kind of smRNAs of a size of interest. The authors of Lutzmayer et al. 2017 used as template the 50% most expressed miRNAs in Arabidopsis so a total of 42 sequences (I guess from their own data but it is not clear in the materials and methods part).
+
+First, download miRNAs data for your species of interest. For instance, for maize, go www.mirbase.org and use the mature sequences in fasta format.
+
+![](images/get_miRNA_maize.png)
+
+
+Assess the expression of all smRNAs available to have an idea of the distribution:
+
+![](images/miRNA_expression_maize.png)
+
+
+In that case, I chose the 50 more expressed as they are close to what was used in Lutzmayer et al. 2017 and they cover the most expressed miRNAs. The choice of using most expressed miRNAs instead of all of them is not clear but it seems it may represent better miRNAs out there. The purpose is to direct the generation of semi-random oligos based on the nucleotide frequency for each position along a 21-mer sequence.
+
+
+## Design semi-random oligonucleotides
 
 1. methods.sRNA.spike.in.design contains files used to design and evaluate sRNA spike-ins.
-Run the following command to generate 1) a fasta file of the top 50% expressed mature miRNAs (i.e. mature.miRNA.seqs.top50percent.fa) and 2) a fasta file of 21 base sequences with characteristics similar to endogenous miRNAs (i.e. random.fa): 
+
+
+
+Run the following command to a fasta file of 21 base sequences with characteristics similar to endogenous miRNAs (i.e. random.fa): 
 ```shell
-python methods.sRNA.spike.in.design.step1.py
+python3 methods.sRNA.spike.in.design.step1.py 
 ```
+
+
+
 Use Bowtie to select entries in random.fa generated from above step that do not map to Arabidopsis thaliana (TAIR10) genome or spike-ins (i.e. genome), and output to a file called noMatch.fa.
 ```shell
 bowtie -f -v 0 --un noMatch.fa genome random.fa match.fa
