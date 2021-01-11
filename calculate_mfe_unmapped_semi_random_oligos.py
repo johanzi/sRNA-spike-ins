@@ -41,9 +41,9 @@ ifh.close()
 
 
 # Generate output folders if not existing (should be run in Python3)
-pathlib.Path("randomOligoSets").mkdir(parents=True, exist_ok=True)
-pathlib.Path("randomOligoSets/folded").mkdir(parents=True, exist_ok=True)
-pathlib.Path("randomOligoSets/folded/mfes").mkdir(parents=True, exist_ok=True)
+pathlib.Path("random_oligo_sets").mkdir(parents=True, exist_ok=True)
+pathlib.Path("random_oligo_sets/folded").mkdir(parents=True, exist_ok=True)
+pathlib.Path("random_oligo_sets/folded/mfes").mkdir(parents=True, exist_ok=True)
 
 
 # Generate a dictionary containing all unmapped 13-mers contained in noMatch.fa
@@ -80,7 +80,7 @@ for name in faDict.keys():
             randomDict[newKey] = (newSeq)
             i += 1
 
-    outFile = 'randomOligoSets/' + name + '.fa'
+    outFile = 'random_oligo_sets/' + name + '.fa'
 
     ofh = open(outFile,'w')
 
@@ -93,9 +93,9 @@ for name in faDict.keys():
 #fold each set of random oligos and calculate min, max, mean and median
 ##note: the same commands were used to fold and 
 
-workDir = 'randomOligoSets/'
+workDir = 'random_oligo_sets/'
 
-outDir = 'randomOligoSets/folded/'
+outDir = 'random_oligo_sets/folded/'
 
 fileList = os.listdir(workDir)
 
@@ -107,9 +107,9 @@ for file in fileList:
 
 #retrieve mfes, calculate min, max, mean and median, and print to outfiles (summary stats in one and list of mfes for each randomer in the other)
 
-workDir = 'randomOligoSets/folded/'
+workDir = 'random_oligo_sets/folded/'
 
-outDir = 'randomOligoSets/folded/mfes/'
+outDir = 'random_oligo_sets/folded/mfes/'
 
 fileList = os.listdir(workDir)
 
