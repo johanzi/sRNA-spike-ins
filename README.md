@@ -1,10 +1,25 @@
 ---
-title: "Small RNA spike-in oligonucleotide design"
+"Small RNA spike-in oligonucleotide design"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
+
+  * [title: "Small RNA spike-in oligonucleotide design"](#title---small-rna-spike-in-oligonucleotide-design-)
+- [Softwares needed](#softwares-needed)
+  * [Python3](#python3)
+  * [Bowtie](#bowtie)
+  * [RNAfold](#rnafold)
+- [Rationale](#rationale)
+- [Obtain miRNAs as templates](#obtain-mirnas-as-templates)
+- [Prepare genome for mapping](#prepare-genome-for-mapping)
+- [Design semi-random 13-nt oligonucleotides](#design-semi-random-13-nt-oligonucleotides)
+- [Select unmapped 13-nt oligonucleotides](#select-unmapped-13-nt-oligonucleotides)
+- [Calculate mininum free energy for miRNAs](#calculate-mininum-free-energy-for-mirnas)
+- [Calculate mininum free energy for unmapped oligonucleotides](#calculate-mininum-free-energy-for-unmapped-oligonucleotides)
+- [Selection of oligonucleotides based on MFE profile](#selection-of-oligonucleotides-based-on-mfe-profile)
+- [Authors](#authors)
+- [License](#license)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 
 This repository contains scripts used to design small RNA spike-in oligonucleotides (sRNA spike-ins). sRNA spike-ins can be used to normalize high-throughput small RNA sequencing (sRNA-Seq) data across individual experiments, as well as the genome-wide estimation of sRNA:mRNA stoichiometries when used together with mRNA spike-ins. The scripts and files contained within this repository were used to generate some of the data presented in [Lutzmayer et al. 2017](https://www.nature.com/articles/s41598-017-06174-3).
