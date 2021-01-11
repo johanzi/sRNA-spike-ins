@@ -113,3 +113,5 @@ selected_list = c("10808_mfes","10905_mfes","147_mfes","15321_mfes","17370_mfes"
 
 # Plot selected oligos
 plot.violins(location_graphs, location_mfes, selected_list, "selected")
+
+
