@@ -3,139 +3,113 @@
 #also plots separate graph showing violin plots corresponding to 8 sets of random sequences used in this study
 
 library("extrafont")
-library("vioplot")
 library("RColorBrewer")
+library("vioplot")
 
-#setwd("/Volumes/compFiles/sRNAs/projects/apps/smallRNA_spikeIns/scripts.for.ms/methods.sRNA.spike.in.design")
-setwd("S:/SCRIPTS/sRNA-spike-ins/methods.sRNA.spike.in.design")
+
+
+# Variables 
+
+# Output directory
+setwd("S:/SCRIPTS/sRNA_spike_in_design/maize")
+
+# Name of the MFE file for miRNAs
+miRNA_file <- "mature.miRNA.seqs_mfes"
+
+# Location of MFE files
+location_mfes <- "random_oligo_sets/folded/mfes/"
+
+
+# Output directory for the violin graphs
+location_graphs <-  "graphs/"
+
+
 
 #function to plot violins
-plot.violins <- function(fileList, name) {
-  miRNA.mfes = read.delim("mature.miRNA.seqs.top50percent_mfes", header=FALSE)
+
+plot.violins <- function(location_graphs, location_mfes, fileList, name) {
   
-  nameList = c("ctrl")
+  # Read content of MFE for miRNAs
+  miRNA.mfes = read.delim(miRNA_file, header=FALSE)
+  
+  # Create a name and MFE list, containing first name and data for miRNAs
+  nameList = c("miRNAs")
   mfeList = c(miRNA.mfes)
-  
+
+  # Loop over the MFE files to retrieve names and append data to mfeList and nameList
   for (file in fileList) {
     file.name = strsplit(file,"_")[[1]][1]
-    nameList = c(nameList,file.name)
-    file.mfes = read.delim(paste("randomOligoSets/folded/mfes/",file,sep=""), header=FALSE)
-    mfeList = c(mfeList,file.mfes)
+    nameList = c(nameList, file.name)
+    file.mfes = read.delim(paste(location_mfes, file, sep=""), header=FALSE)
+    mfeList = c(mfeList, file.mfes)
+    names
   }
   
-  outFile = paste("graphs/",name,".violins.pdf",sep='')
+  # Generate output PDF file
+  outFile = paste(location_graphs, name, "_violins.pdf", sep='')
   
-  col_v = brewer.pal(10, "Set3")
+  # Define colors (as many as there are files in the list
+  col_v = brewer.pal(11, "Set3")
+  col_v_used <- col_v[1:length(nameList)]
   
-  #pdf(outFile, family='Arial', useDingbats=F) # Error unknown family 'Arial'
+  # Open PDF file to write
   pdf(outFile, family='Helvetica', useDingbats=F)
-  vioplot(mfeList[1]$V1,mfeList[2]$V1,mfeList[3]$V1,mfeList[4]$V1,mfeList[5]$V1,mfeList[6]$V1,mfeList[7]$V1,mfeList[8]$V1,mfeList[9]$V1,mfeList[10]$V1, col="white", names=nameList)
-  vioplot(mfeList[1]$V1, col=col_v[1], at=1, add=T)
-  vioplot(mfeList[2]$V1, col=col_v[2], at=2, add=T)
-  vioplot(mfeList[3]$V1, col=col_v[3], at=3, add=T)
-  vioplot(mfeList[4]$V1, col=col_v[4], at=4, add=T)
-  vioplot(mfeList[5]$V1, col=col_v[5], at=5, add=T)
-  vioplot(mfeList[6]$V1, col=col_v[6], at=6, add=T)
-  vioplot(mfeList[7]$V1, col=col_v[7], at=7, add=T)
-  vioplot(mfeList[8]$V1, col=col_v[8], at=8, add=T)
-  vioplot(mfeList[9]$V1, col=col_v[9], at=9, add=T)
-  vioplot(mfeList[10]$V1, col=col_v[10], at=10, add=T)
+  
+  # Plot
+  vioplot(mfeList, names=as.vector(nameList), cex.axis = 0.6, ylab="MFE", col=col_v_used)
+ 
+  # Add a dashed line at y=0
   abline(h=0, lty=2)
   dev.off()
+  
 }
 
-fileList = list.files("randomOligoSets/folded/mfes/", pattern = "mfes")
-list.1 = fileList[1:9]
-list.2 = fileList[10:18]
-list.3 = fileList[19:27]
-list.4 = fileList[28:36]
-list.5 = fileList[37:45]
-list.6 = fileList[46:54]
-list.7 = fileList[55:63]
-list.8 = fileList[64:72]
-list.9 = fileList[73:81]
-list.10 = fileList[82:90]
-list.11 = fileList[91:99]
-list.12 = fileList[100:108]
-list.13 = fileList[109:117]
-list.14 = fileList[118:126]
-list.15 = fileList[127:135]
-list.16 = fileList[136:144]
-list.17 = fileList[145:153]
-list.18 = fileList[154:162]
-list.19 = fileList[163:171]
-list.20 = fileList[172:180]
-list.21 = fileList[181:189]
-list.22 = fileList[190:198]
-list.23 = fileList[199:207]
-list.24 = fileList[208:216]
-list.25 = fileList[217:225]
-list.26 = fileList[226:234]
-list.27 = fileList[235:243]
-list.28 = fileList[244:251]
-#list.28 = fileList[244:252]
 
-#step through list by 9s and plot to examine corresponding MFE distributions
-plot.violins(list.1, "Set1")
-plot.violins(list.2, "Set2")
-plot.violins(list.3, "Set3")
-plot.violins(list.4, "Set4")
-plot.violins(list.5, "Set5")
-plot.violins(list.6, "Set6")
-plot.violins(list.7, "Set7")
-plot.violins(list.8, "Set8")
-plot.violins(list.9, "Set9")
-plot.violins(list.10, "Set10")
-plot.violins(list.11, "Set11")
-plot.violins(list.12, "Set12")
-plot.violins(list.13, "Set13")
-plot.violins(list.14, "Set14")
-plot.violins(list.15, "Set15")
-plot.violins(list.16, "Set16")
-plot.violins(list.17, "Set17")
-plot.violins(list.18, "Set18")
-plot.violins(list.19, "Set19")
-plot.violins(list.20, "Set20")
-plot.violins(list.21, "Set21")
-plot.violins(list.22, "Set22")
-plot.violins(list.23, "Set23")
-plot.violins(list.24, "Set24")
-plot.violins(list.25, "Set25")
-plot.violins(list.26, "Set26")
-plot.violins(list.27, "Set27")
-plot.violins(list.28, "Set28")
+# Create a list of list of MFE files
 
+create_list_files <- function(location_mfes){
 
-#plot for random sequence sets used in this study
-
-miRNA.mfes = read.delim("mature.miRNA.seqs.top50percent_mfes", header=FALSE)
-
-nameList = c("ctrl")
-mfeList = c(miRNA.mfes)
-
-fileList = c("433_mfes","403_mfes","361_mfes","871_mfes","974_mfes","71_mfes","823_mfes","87_mfes")
-
-for (file in fileList) {
-  file.name = strsplit(file,"_")[[1]][1]
-  nameList = c(nameList,file.name)
-  file.mfes = read.delim(paste("randomOligoSets/folded/mfes/",file,sep=""), header=FALSE)
-  mfeList = c(mfeList,file.mfes)
+  # Get a list of all files containing suffix "mfes"
+  fileList = list.files(location_mfes, pattern = "mfes")
+  
+  # Check number of files
+  len_list <- length(fileList)
+  
+  # Create a list of each file and pool them 10 by 10
+  # Initialize the first element of the list
+  y=1
+  # Create empty receiving list
+  list_list_files <- list()
+  
+  for(i in seq(0,len_list,10)){
+    start=i+1
+    end=i+10
+    list_list_files[[y]] <- fileList[start:end]
+    y=y+1
+  }
+  
+  # Remove any NAs from the lists (usually in the last list if not a multiple of 10)
+  list_list_files_filtered <- lapply(list_list_files, function(x) x[!is.na(x)])
+  
+  # Return curated list
+  return(list_list_files_filtered)
+  
 }
 
-outFile = "../supplemental.figure.4/supplemental.figure.4.pdf"
+# Create of list of 10 by 10 mfe files
+list_list_files <- create_list_files(location_mfes)
 
-col_v = brewer.pal(9, "Set3")
 
-pdf(outFile, family='Helvetica', useDingbats=F)
-vioplot(mfeList[1]$V1,mfeList[2]$V1,mfeList[3]$V1,mfeList[4]$V1,mfeList[5]$V1,mfeList[6]$V1,mfeList[7]$V1,mfeList[8]$V1,mfeList[9]$V1, col="white", names=nameList)
-vioplot(mfeList[1]$V1, col=col_v[1], at=1, add=T)
-vioplot(mfeList[2]$V1, col=col_v[2], at=2, add=T)
-vioplot(mfeList[3]$V1, col=col_v[3], at=3, add=T)
-vioplot(mfeList[4]$V1, col=col_v[4], at=4, add=T)
-vioplot(mfeList[5]$V1, col=col_v[5], at=5, add=T)
-vioplot(mfeList[6]$V1, col=col_v[6], at=6, add=T)
-vioplot(mfeList[7]$V1, col=col_v[7], at=7, add=T)
-vioplot(mfeList[8]$V1, col=col_v[8], at=8, add=T)
-vioplot(mfeList[9]$V1, col=col_v[9], at=9, add=T)
-abline(h=0, lty=2)
-dev.off()
+#step through list by 10 and plot to examine corresponding MFE distributions
+for(i in (1:length(list_list_files))){
+  name_plot = paste("Set",i ,sep="")
+  plot.violins(location_graphs, location_mfes, list_list_files[[i]], name_plot)
+}
+
+
+# Chosen oligos (via visualization)
+selected_list = c("10808_mfes","10905_mfes","147_mfes","15321_mfes","17370_mfes","17494_mfes","26971_mfes","34581_mfes")
+
+
+# Plot selected oligos
+plot.violins(location_graphs, location_mfes, selected_list, "selected")
