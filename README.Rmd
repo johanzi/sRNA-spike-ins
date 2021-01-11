@@ -2,8 +2,10 @@
 title: "Small RNA spike-in oligonucleotide design"
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
 
-# Small RNA spike-in oligonucleotide design
 
 This repository contains scripts used to design small RNA spike-in oligonucleotides (sRNA spike-ins). sRNA spike-ins can be used to normalize high-throughput small RNA sequencing (sRNA-Seq) data across individual experiments, as well as the genome-wide estimation of sRNA:mRNA stoichiometries when used together with mRNA spike-ins. The scripts and files contained within this repository were used to generate some of the data presented in [Lutzmayer et al. 2017](https://www.nature.com/articles/s41598-017-06174-3).
 
@@ -109,21 +111,27 @@ The fasta sequences of the miRNAs were pasted in `miRNA_50_most_expressed_SRR034
 
 Download the fasta file of the genome you are interested in. For instance, we want to generate spike-in sRNAs to quantify small RNAs derived from an hybrid between the maize inbred lines B73 and Mo17 We therefore downloaded the two available genomes.
 
+We would also use the same spike-in in rapeseed, which is also a model in the lab.
+
 ```{bash}
 # B73 v4
-wget ftp://ftp.ensemblgenomes.org/pub/release-41/plants/fasta/zea_mays/dna/Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz
+wget ftp://ftp.ensemblgenomes.org/pub/release-41/plants/fasta/zea_mays/dna/Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz && gunzip Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz
 
 # Mo17
-wget https://download.maizegdb.org/Zm-Mo17-REFERENCE-CAU-1.0/Zm-Mo17-REFERENCE-CAU-1.0.fa.gz
+wget https://download.maizegdb.org/Zm-Mo17-REFERENCE-CAU-1.0/Zm-Mo17-REFERENCE-CAU-1.0.fa.gz && gunzip Zm-Mo17-REFERENCE-CAU-1.0.fa.gz
 
-# Uncompress
-gunzip Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz Zm-Mo17-REFERENCE-CAU-1.0.fa.gz
+# Download Darmor-bzh fasta file
+wget https://wwwdev.genoscope.cns.fr/brassicanapus/data/Brassica_napus_v4.1.chromosomes.fa.gz && gunzip Brassica_napus_v4.1.chromosomes.fa.gz
 
 # Generate bowtie indexes
 # For B73
 bowtie-build Zea_mays.B73_RefGen_v4.dna.toplevel.fa B73_RefGen_v4
+
 # For Mo17
 bowtie-build Zm-Mo17-REFERENCE-CAU-1.0.fa Mo17
+
+# For Darmor-Bzh
+bowtie-build Brassica_napus_v4.1.chromosomes.fa Darmor_bzh
 
 ```
 
@@ -156,7 +164,7 @@ bowtie -f -v 0 --un noMatch_B73.fa B73_RefGen_v4 random.fa match_B73.fa
 I get now about 538 unmapped oligos, map these to Mo17 to be sure they don't match this genome either:
 
 ```{bash}
-bowtie -f -v 0 --un noMatch_both.fa Mo17/Mo17 noMatch_B73.fa match_Mo17.fa
+bowtie -f -v 0 --un noMatch_B73_Mo17.fa Mo17/Mo17 noMatch_B73.fa match_Mo17.fa
 # reads processed: 538
 # reads with at least one reported alignment: 280 (52.04%)
 # reads that failed to align: 258 (47.96%)
@@ -164,7 +172,28 @@ bowtie -f -v 0 --un noMatch_both.fa Mo17/Mo17 noMatch_B73.fa match_Mo17.fa
 
 ```
 
-Out of 538 not mapping to B73, 280 align to Mo17 so it was important to do this step. We have a final set of 258 oligos that do not align to either genome.
+Out of 538 not mapping to B73, 280 align to Mo17 so it was important to do this step. 
+
+
+Now let's select from these 258 oligos left the ones that do not map to the rapeseed reference Darmor-Bzh
+
+
+```{bash}
+
+bowtie -f -v 0 --un noMatch_B73_Mo17_Darmor_bzh.fa Darmor_bzh/Darmor_bzh noMatch_B73_Mo17.fa match_Darmor_bzh.fa
+
+# reads processed: 258
+# reads with at least one reported alignment: 209 (81.01%)
+# reads that failed to align: 49 (18.99%)
+#Reported 209 alignments
+
+
+```
+
+
+We have a final set of 49 oligos that do not align to either genome.
+
+
 
 # Calculate mininum free energy for miRNAs
 
@@ -183,15 +212,97 @@ This script generates two files: `mature.miRNA.seqs_folded` and `mature.miRNA.se
 This step will add a NNNN prefix and NNNN suffix to each unmapped 13-nt so that 8 random nucleotides are added to each oligo. This gives 4^8= 65,536 21-nt oligos for each 13-nt core sequences. The idea behind is to limit the risk of unproper ligation due to secondary structure by diverisfying the possibilities of sequences. The 13-nt core will be used to define which spike-in is sequenced (it acts as a barcode). RNAfold will be run for each of these oligos to determine their respective MFE and the whole data will be summarized in an Excel file `summaryStats.xls` with for each 13-nt oligos with mininum, maximum, mean, and median MFE values. This script can take some times considering the millions of sequences to analyze.
 
 ```{bash}
-python3 ../methods.sRNA.spike.in.design/methods.sRNA.spike.in.design.step2.py noMatch_both.fa
+python3 ../calculate_mfe_unmapped_semi_random_oligos.py noMatch_B73_Mo17_Darmor_bzh.fa
 ```
 
 
 
 # Selection of oligonucleotides based on MFE profile
 
+Run the script [examine_mfe_distributions.R](./examine_mfe_distributions.R) to generate a set of PDF containing the MFE distributions for the 65,536 combinations of each 49 13-nt core oligonucleotides sequences found previously.
+
+Select visually eight 13-nt core oligonucleotides that are close in distribution to the miRNAs.
 
 
+![](images/violin_plot_1.png)
+
+
+![](images/violin_plot_2.png)
+
+
+The numbers highlighted in yellow are the 13-nt core oligonucleotides selected.
+
+
+The final selection looks like this:
+![](images/violin_plot_selected.png)
+
+The sequences of the 13-nt oligos corresponding to these names are:
+
+
+```
+cat oligo_to_keep.txt
+10808
+10905
+147
+15321
+17370
+17494
+26971
+34581
+
+```
+
+```{bash}
+while read i; do grep -w -A 1 ${i} random.fa; done < oligo_to_keep.txt > oligo_to_keep.fa
+>10808
+TCGCGGCTTATCA
+>10905
+ATATTACGGCCCC
+>147
+TCCCGGCTGTACA
+>15321
+TTCCGACTCCCGT
+>17370
+ACTGCGCGGAACT
+>17494
+GCCGGACGTTATA
+>26971
+ATTAGCGGCACTT
+>34581
+ATACTTCGGACGT
+
+```
+
+
+Add N prefix and suffix
+
+```{bash}
+
+while read i; do 
+  echo "NNNN${i}NNNN"
+done < oligo_to_keep.fa | grep -v ">" -
+
+NNNNTCGCGGCTTATCANNNN
+NNNNATATTACGGCCCCNNNN
+NNNNTCCCGGCTGTACANNNN
+NNNNTTCCGACTCCCGTNNNN
+NNNNACTGCGCGGAACTNNNN
+NNNNGCCGGACGTTATANNNN
+NNNNATTAGCGGCACTTNNNN
+NNNNATACTTCGGACGTNNNN
+
+```
+
+These 8 oligos can be ordered with a 5' monophosphate and 2'-O-methylation.
+
+
+
+# Authors
+* **Johan Zicola** - [johanzi](https://github.com/johanzi)
+
+
+# License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 
 
